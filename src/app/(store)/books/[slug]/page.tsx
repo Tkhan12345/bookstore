@@ -1,61 +1,84 @@
-
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getBookBySlug } from "@/features/catalog/catalog.service";
+import { BookDetails } from "@/components/books/book-details";
+import { ReviewsSection } from "@/components/books/reviews-section";
+import { FeaturedBooks } from "@/components/home/featured-books";
+import { Breadcrumb } from "@/components/shared/breadcrumb";
+import {
+  getBookDetail,
+  getBookReviews,
+  getRelatedBooks,
+} from "@/features/catalog/catalog.service";
 
-export default async function BookDetailPage({
-  params,
-}: {
+type BookPageProps = {
   params: Promise<{ slug: string }>;
-}) {
+};
+
+export async function generateMetadata({
+  params,
+}: BookPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const book = await getBookBySlug(slug);
+  const book = await getBookDetail(slug);
+  if (!book) return { title: "Book not found" };
+
+  const authors = book.authors.map((author) => author.name).join(", ");
+  return {
+    title: authors ? `${book.title} by ${authors}` : book.title,
+    description: book.description.slice(0, 160),
+  };
+}
+
+export default async function BookDetailPage({ params }: BookPageProps) {
+  const { slug } = await params;
+  const book = await getBookDetail(slug);
 
   if (!book) notFound();
 
-  const price = new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-  }).format(book.pricePaise / 100);
+  const [related, reviews] = await Promise.all([
+    getRelatedBooks(
+      book.id,
+      book.categories.map((category) => category.id),
+      4,
+    ),
+    getBookReviews(book.id),
+  ]);
 
-  const available =
-    (book.inventory?.quantity ?? 0) -
-    (book.inventory?.reservedQuantity ?? 0);
+  const primaryCategory = book.categories[0];
 
   return (
-    <section className="mx-auto grid max-w-6xl gap-12 px-6 py-16 md:grid-cols-2">
-      <div className="flex min-h-96 items-center justify-center rounded-xl bg-[#A8BBA3] p-10">
-        <div className="flex aspect-[3/4] w-2/3 items-center justify-center rounded-r-lg border-l-8 border-[#C69C55] bg-[#18392B] p-6 text-center shadow-2xl">
-          <span className="font-editorial text-3xl text-white">
-            {book.title}
-          </span>
-        </div>
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+      <Breadcrumb
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Books", href: "/books" },
+          ...(primaryCategory
+            ? [
+                {
+                  label: primaryCategory.name,
+                  href: `/books?category=${primaryCategory.slug}`,
+                },
+              ]
+            : []),
+          { label: book.title },
+        ]}
+      />
+
+      <div className="mt-8">
+        <BookDetails book={book} />
       </div>
 
-      <div>
-        <h1 className="font-editorial text-4xl">
-          {book.title}
-        </h1>
-
-        <p className="mt-3 text-gray-600">
-          By {book.authors.map((a) => a.name).join(", ")}
-        </p>
-
-        <p className="mt-6 text-3xl font-bold text-[#18392B]">
-          {price}
-        </p>
-
-        <p className="mt-6 leading-8 text-gray-700">
-          {book.description}
-        </p>
-
-        <p className="mt-6 text-sm font-semibold">
-          {available > 0 ? "In Stock" : "Out of Stock"}
-        </p>
-
-        <p className="mt-4 text-sm text-gray-500">
-          Shopping cart and checkout are coming in Phase 2.
-        </p>
+      <div className="mt-20 sm:mt-24">
+        <ReviewsSection summary={reviews} />
       </div>
-    </section>
+
+      <div className="-mx-4 mt-20 sm:-mx-6 sm:mt-24 lg:-mx-8">
+        <FeaturedBooks
+          id="related"
+          eyebrow="Keep reading"
+          title="You may also like"
+          books={related}
+        />
+      </div>
+    </div>
   );
 }
