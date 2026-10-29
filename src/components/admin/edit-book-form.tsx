@@ -1,4 +1,8 @@
-﻿"use client";
+"use client";
+
+import { BookCoverUploader } from "@/components/admin/book-cover-uploader";
+
+import { BookTaxonomySelector } from "@/components/admin/book-taxonomy-selector";
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
@@ -41,8 +45,8 @@ export function EditBookForm({ book, authors, categories }: Props) {
   const [isbn, setIsbn] = useState(book.isbn);
   const [price, setPrice] = useState((book.pricePaise / 100).toFixed(2));
   const [coverImage, setCoverImage] = useState(book.coverImage);
-  const [authorId, setAuthorId] = useState(book.authorIds[0] ?? "");
-  const [categoryId, setCategoryId] = useState(book.categoryIds[0] ?? "");
+  const [authorIds, setAuthorIds] = useState<string[]>(book.authorIds);
+  const [categoryIds, setCategoryIds] = useState<string[]>(book.categoryIds);
   const [featured, setFeatured] = useState(book.featured);
   const [active, setActive] = useState(book.active);
   const [loading, setLoading] = useState(false);
@@ -62,7 +66,7 @@ export function EditBookForm({ book, authors, categories }: Props) {
       return;
     }
 
-    if (!authorId || !categoryId) {
+    if (authorIds.length === 0 || categoryIds.length === 0) {
       setError("Select an author and category.");
       return;
     }
@@ -80,8 +84,8 @@ export function EditBookForm({ book, authors, categories }: Props) {
           isbn,
           pricePaise,
           coverImage,
-          authorIds: [authorId],
-          categoryIds: [categoryId],
+          authorIds,
+          categoryIds,
           featured,
           active,
         }),
@@ -161,47 +165,21 @@ export function EditBookForm({ book, authors, categories }: Props) {
         </div>
       </div>
 
-      <div>
-        <label htmlFor="edit-cover" className="mb-2 block text-sm font-medium">
-          Cover Image URL
-        </label>
-        <input id="edit-cover" type="url" value={coverImage}
-          onChange={(e) => setCoverImage(e.target.value)}
-          className={inputClass} />
-      </div>
+      <BookCoverUploader value={coverImage} onChange={setCoverImage} />
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <div>
-          <label htmlFor="edit-author" className="mb-2 block text-sm font-medium">
-            Author *
-          </label>
-          <select id="edit-author" required value={authorId}
-            onChange={(e) => setAuthorId(e.target.value)}
-            className={inputClass}>
-            <option value="">Select author</option>
-            {authors.map((author) => (
-              <option key={author.id} value={author.id}>
-                {author.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="edit-category" className="mb-2 block text-sm font-medium">
-            Category *
-          </label>
-          <select id="edit-category" required value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className={inputClass}>
-            <option value="">Select category</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <BookTaxonomySelector
+          type="authors"
+          initialOptions={authors}
+          selectedIds={authorIds}
+          onChange={setAuthorIds}
+        />
+        <BookTaxonomySelector
+          type="categories"
+          initialOptions={categories}
+          selectedIds={categoryIds}
+          onChange={setCategoryIds}
+        />
       </div>
 
       <div className="space-y-3">
@@ -232,3 +210,4 @@ export function EditBookForm({ book, authors, categories }: Props) {
     </form>
   );
 }
+

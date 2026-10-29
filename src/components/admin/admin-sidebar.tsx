@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -6,17 +6,17 @@ import {
   BookOpen,
   LayoutDashboard,
   Package,
-  ShoppingBag,
-  Users,
   ArrowLeft,
+  Tags,
+  PenLine,
 } from "lucide-react";
 
 const navigation = [
   { label: "Overview", href: "/admin", icon: LayoutDashboard },
   { label: "Books", href: "/admin/books", icon: BookOpen },
   { label: "Inventory", href: "/admin/inventory", icon: Package },
-  { label: "Orders", href: "/admin/orders", icon: ShoppingBag },
-  { label: "Customers", href: "/admin/customers", icon: Users },
+  { label: "Authors", href: "/admin/authors", icon: PenLine },
+  { label: "Categories", href: "/admin/categories", icon: Tags },
 ];
 
 export function AdminSidebar() {

@@ -1,3 +1,4 @@
+import Link from "next/link";
 
 import { redirect } from "next/navigation";
 import { BookOpen, Mail, ShieldCheck, UserRound } from "lucide-react";
@@ -70,7 +71,18 @@ export default async function AccountPage() {
           </div>
 
           <div className="mt-8 border-t border-border pt-6">
-            <LogoutButton />
+            {user.role === "ADMIN" && (
+              <Link
+                href="/admin"
+                className="mb-4 inline-flex items-center justify-center rounded-lg bg-forest px-5 py-3 text-sm font-medium text-white transition hover:opacity-90"
+              >
+                Go to Admin Dashboard
+              </Link>
+            )}
+
+            <div>
+              <LogoutButton />
+            </div>
           </div>
         </div>
 

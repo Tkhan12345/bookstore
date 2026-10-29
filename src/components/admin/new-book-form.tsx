@@ -1,4 +1,8 @@
-﻿"use client";
+"use client";
+
+import { BookCoverUploader } from "@/components/admin/book-cover-uploader";
+
+import { BookTaxonomySelector } from "@/components/admin/book-taxonomy-selector";
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
@@ -34,8 +38,8 @@ export function NewBookForm({
   const [isbn, setIsbn] = useState("");
   const [price, setPrice] = useState("");
   const [coverImage, setCoverImage] = useState("");
-  const [authorId, setAuthorId] = useState("");
-  const [categoryId, setCategoryId] = useState("");
+  const [authorIds, setAuthorIds] = useState<string[]>([]);
+  const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [quantity, setQuantity] = useState("0");
   const [featured, setFeatured] = useState(false);
   const [active, setActive] = useState(true);
@@ -67,7 +71,7 @@ export function NewBookForm({
       return;
     }
 
-    if (!authorId || !categoryId) {
+    if (authorIds.length === 0 || categoryIds.length === 0) {
       setError("Please select an author and category.");
       return;
     }
@@ -85,8 +89,8 @@ export function NewBookForm({
           isbn,
           pricePaise,
           coverImage,
-          authorIds: [authorId],
-          categoryIds: [categoryId],
+          authorIds,
+          categoryIds,
           quantity: quantityValue,
           featured,
           active,
@@ -205,60 +209,21 @@ export function NewBookForm({
         </div>
       </div>
 
-      <div>
-        <label htmlFor="book-cover" className="mb-2 block text-sm font-medium">
-          Cover Image URL (optional)
-        </label>
-        <input
-          id="book-cover"
-          type="url"
-          value={coverImage}
-          onChange={(e) => setCoverImage(e.target.value)}
-          className={inputClass}
-          placeholder="https://example.com/cover.jpg"
-        />
-      </div>
+      <BookCoverUploader value={coverImage} onChange={setCoverImage} />
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <div>
-          <label htmlFor="book-author" className="mb-2 block text-sm font-medium">
-            Author *
-          </label>
-          <select
-            id="book-author"
-            required
-            value={authorId}
-            onChange={(e) => setAuthorId(e.target.value)}
-            className={inputClass}
-          >
-            <option value="">Select author</option>
-            {authors.map((author) => (
-              <option key={author.id} value={author.id}>
-                {author.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="book-category" className="mb-2 block text-sm font-medium">
-            Category *
-          </label>
-          <select
-            id="book-category"
-            required
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className={inputClass}
-          >
-            <option value="">Select category</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <BookTaxonomySelector
+          type="authors"
+          initialOptions={authors}
+          selectedIds={authorIds}
+          onChange={setAuthorIds}
+        />
+        <BookTaxonomySelector
+          type="categories"
+          initialOptions={categories}
+          selectedIds={categoryIds}
+          onChange={setCategoryIds}
+        />
       </div>
 
       <div>
@@ -301,7 +266,7 @@ export function NewBookForm({
       <div className="flex flex-wrap gap-3 border-t border-border pt-6">
         <button
           type="submit"
-          disabled={loading || authors.length === 0 || categories.length === 0}
+          disabled={loading || authorIds.length === 0 || categoryIds.length === 0}
           className="rounded-lg bg-forest px-6 py-3 text-sm font-medium text-white disabled:opacity-50"
         >
           {loading ? "Saving..." : "Create Book"}
@@ -315,11 +280,8 @@ export function NewBookForm({
         </Link>
       </div>
 
-      {(authors.length === 0 || categories.length === 0) && (
-        <p className="text-sm text-amber-700">
-          Add at least one author and category before creating books.
-        </p>
-      )}
+      
     </form>
   );
 }
+
