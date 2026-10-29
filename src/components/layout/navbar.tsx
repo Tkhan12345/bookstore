@@ -1,3 +1,4 @@
+﻿import { UserRound } from "lucide-react";
 import Link from "next/link";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { NavCounts } from "@/components/layout/nav-counts";
@@ -52,6 +53,14 @@ export function Navbar({ categories }: NavbarProps) {
         <div className="ml-auto flex items-center gap-1">
           <SearchBar id="desktop-search" className="mr-2 hidden w-56 md:flex lg:w-64" />
           <NavCounts />
+          <Link
+            href="/account"
+            aria-label="My account"
+            title="My account"
+            className="inline-flex size-10 items-center justify-center rounded-md text-forest transition-colors hover:bg-secondary"
+          >
+            <UserRound className="size-5" />
+          </Link>
         </div>
       </div>
     </header>
