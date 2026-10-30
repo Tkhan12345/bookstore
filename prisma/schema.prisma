@@ -138,6 +138,8 @@ model Address {
 
 model Order {
   id              String        @id @default(cuid())
+  idempotencyKey  String?       @unique
+  requestHash     String?
   userId          String
   status          OrderStatus   @default(PENDING)
   paymentStatus   PaymentStatus @default(PENDING)
