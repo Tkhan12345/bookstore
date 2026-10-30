@@ -9,11 +9,13 @@ import {
   ArrowLeft,
   Tags,
   PenLine,
+  ClipboardList,
 } from "lucide-react";
 
 const navigation = [
   { label: "Overview", href: "/admin", icon: LayoutDashboard },
   { label: "Books", href: "/admin/books", icon: BookOpen },
+  { label: "Orders", href: "/admin/orders", icon: ClipboardList },
   { label: "Inventory", href: "/admin/inventory", icon: Package },
   { label: "Authors", href: "/admin/authors", icon: PenLine },
   { label: "Categories", href: "/admin/categories", icon: Tags },
