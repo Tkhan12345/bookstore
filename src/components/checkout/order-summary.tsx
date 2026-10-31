@@ -1,4 +1,4 @@
-import { BookCover } from "@/components/books/book-cover";
+﻿import { BookCover } from "@/components/books/book-cover";
 import type { ResolvedCartItem } from "@/lib/cart-live";
 import { formatPrice } from "@/lib/format";
 
@@ -61,10 +61,10 @@ export function OrderSummary({
         </div>
         <div className="flex justify-between gap-4">
           <dt className="text-muted-foreground">Shipping</dt>
-          <dd className="text-right text-ink">Calculated later</dd>
+          <dd className="text-right text-ink">Free - ₹0</dd>
         </div>
         <div className="flex justify-between gap-4 border-t border-border pt-4 text-base">
-          <dt className="font-semibold text-ink">Estimated total</dt>
+          <dt className="font-semibold text-ink">Order total</dt>
           <dd className="font-semibold text-forest">
             {formatPrice(subtotalPaise)}
           </dd>
@@ -81,7 +81,7 @@ export function OrderSummary({
 
       {verifying ? (
         <p role="status" className="mt-4 text-xs text-muted-foreground">
-          Checking current prices and stock…
+          Checking current prices and stockâ€¦
         </p>
       ) : null}
     </aside>

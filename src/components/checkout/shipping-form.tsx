@@ -1,4 +1,4 @@
-import { Field, controlClass } from "@/components/checkout/form-field";
+﻿import { Field, controlClass } from "@/components/checkout/form-field";
 import { INDIAN_STATES } from "@/lib/india-states";
 import type {
   FieldErrors,
@@ -170,7 +170,7 @@ export function ShippingForm({
             onBlur={() => onBlur("state")}
             className={controlClass}
           >
-            <option value="">Select…</option>
+            <option value="">Select...</option>
             {INDIAN_STATES.map((state) => (
               <option key={state} value={state}>
                 {state}

@@ -1,4 +1,4 @@
-
+﻿
 "use client";
 
 import Link from "next/link";
@@ -9,6 +9,7 @@ import { AlertTriangle, ShoppingBag } from "lucide-react";
 import { OrderSummary } from "@/components/checkout/order-summary";
 import { PaymentMethodSelect } from "@/components/checkout/payment-method";
 import { ShippingForm, fieldId } from "@/components/checkout/shipping-form";
+import { SavedAddressPicker } from "@/components/checkout/saved-address-picker";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -265,6 +266,8 @@ export function CheckoutView() {
           </div>
         ) : null}
 
+        <SavedAddressPicker onSelect={(address) => { setValues(address); setTouched({}); setServerError(null); }} />
+
         <ShippingForm
           values={values}
           errors={visibleErrors}
@@ -302,3 +305,4 @@ export function CheckoutView() {
     </div>
   );
 }
+
