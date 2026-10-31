@@ -143,6 +143,8 @@ model Order {
   userId          String
   status          OrderStatus   @default(PENDING)
   paymentStatus   PaymentStatus @default(PENDING)
+  paidAt          DateTime?
+  paidByAdminId   String?
   subtotalPaise   Int
   shippingPaise   Int           @default(0)
   totalPaise      Int
