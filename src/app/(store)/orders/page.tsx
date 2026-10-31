@@ -5,6 +5,7 @@ import { Package } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
+import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 
 export const dynamic = "force-dynamic";
 
@@ -90,24 +91,24 @@ export default async function OrdersPage() {
                   </p>
                 </div>
 
-                <div className="text-right">
-                  <p className="font-semibold text-forest">
-                    {money(order.totalPaise)}
-                  </p>
-                  <p className="mt-2 text-sm font-medium">
-                    {order.status.replaceAll("_", " ")}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    COD · {order.paymentStatus}
-                  </p>
-                </div>
+                <div className="flex flex-col items-end gap-2 text-right">
+  <p className="font-semibold text-forest">
+    {money(order.totalPaise)}
+  </p>
+
+  <OrderStatusBadge status={order.status} />
+
+  <p className="text-xs text-muted-foreground">
+    COD · {order.paymentStatus}
+  </p>
+</div>
               </div>
 
               <div className="mt-5 border-t pt-4">
                 <Button asChild variant="outline">
                   <Link href={`/orders/${order.id}`}>
-                    View order details
-                  </Link>
+  Track order
+</Link>
                 </Button>
               </div>
             </article>
