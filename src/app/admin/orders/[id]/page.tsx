@@ -4,6 +4,7 @@ import { ArrowLeft, Package } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 import { OrderStatusControls } from "@/components/admin/order-status-controls";
+import { OrderPaymentControls } from "@/components/admin/order-payment-controls";
 
 export const dynamic = "force-dynamic";
 
@@ -162,9 +163,15 @@ export default async function AdminOrderDetailsPage({
           </section>
 
           <OrderStatusControls
-            orderId={order.id}
-            status={order.status}
-          />
+  orderId={order.id}
+  status={order.status}
+/>
+
+<OrderPaymentControls
+  orderId={order.id}
+  orderStatus={order.status}
+  paymentStatus={order.paymentStatus}
+/>
         </div>
       </div>
     </div>
