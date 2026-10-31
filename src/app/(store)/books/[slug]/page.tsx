@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BookDetails } from "@/components/books/book-details";
-import { ReviewsSection } from "@/components/books/reviews-section";
+import { ReviewHub } from "@/components/books/review-hub";
 import { FeaturedBooks } from "@/components/home/featured-books";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
 import {
@@ -34,7 +34,7 @@ export default async function BookDetailPage({ params }: BookPageProps) {
 
   if (!book) notFound();
 
-  const [related, reviews] = await Promise.all([
+  const [related] = await Promise.all([
     getRelatedBooks(
       book.id,
       book.categories.map((category) => category.id),
@@ -68,7 +68,7 @@ export default async function BookDetailPage({ params }: BookPageProps) {
       </div>
 
       <div className="mt-20 sm:mt-24">
-        <ReviewsSection summary={reviews} />
+        <ReviewHub bookId={book.id} />
       </div>
 
       <div className="-mx-4 mt-20 sm:-mx-6 sm:mt-24 lg:-mx-8">
