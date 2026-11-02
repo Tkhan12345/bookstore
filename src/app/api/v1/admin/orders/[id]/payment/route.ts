@@ -1,3 +1,4 @@
+import { parseJsonRequest } from "@/lib/security/parse-json";
 
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
@@ -37,12 +38,11 @@ export async function PATCH(
   let body: unknown;
 
   try {
-    body = await request.json();
+    const result = await parseJsonRequest(request);
+    if (!result.ok) return result.response;
+    body = result.body;
   } catch {
-    return NextResponse.json(
-      { error: "Invalid JSON." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   const parsed = schema.safeParse(body);

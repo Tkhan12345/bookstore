@@ -1,4 +1,5 @@
-﻿import { NextResponse } from "next/server";
+import { parseJsonRequest } from "@/lib/security/parse-json";
+import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { reviewSchema } from "@/lib/validations/review";
@@ -11,7 +12,13 @@ export async function PATCH(request: Request, { params }: Context) {
   if (!session?.user?.id) return NextResponse.json({ error: "Please sign in" }, { status: 401 });
   const { id } = await params;
   let body: unknown;
-  try { body = await request.json(); } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
+  try {
+    const result = await parseJsonRequest(request);
+    if (!result.ok) return result.response;
+    body = result.body;
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
   const parsed = reviewSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid review" }, { status: 400 });
   const result = await prisma.review.updateMany({

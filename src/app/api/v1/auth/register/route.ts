@@ -1,10 +1,12 @@
 
 import { NextResponse } from "next/server";
+import { readJsonWithLimit, RequestBodyError } from "@/lib/security/read-json";
 import { hash } from "argon2";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/security/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -18,12 +20,16 @@ export async function POST(request: Request) {
   let body: unknown;
 
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json(
-      { error: "Invalid JSON body" },
-      { status: 400 }
-    );
+    body = await readJsonWithLimit(request);
+  } catch (error) {
+    if (error instanceof RequestBodyError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status },
+      );
+    }
+
+    throw error;
   }
 
   const parsed = registerSchema.safeParse(body);
@@ -36,6 +42,31 @@ export async function POST(request: Request) {
   }
 
   const { name, email, password } = parsed.data;
+
+  try {
+    const result = await checkRateLimit({
+      scope: "register",
+      identifier: email,
+      limit: 5,
+      windowSeconds: 3600,
+    });
+
+    if (!result.allowed) {
+      return NextResponse.json(
+        { error: "Too many registration attempts. Please try again later." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(result.retryAfterSeconds) },
+        },
+      );
+    }
+  } catch (error) {
+    console.error("Registration rate limiter unavailable:", error);
+    return NextResponse.json(
+      { error: "Registration temporarily unavailable." },
+      { status: 503 },
+    );
+  }
 
   try {
     const passwordHash = await hash(password);

@@ -1,4 +1,5 @@
-﻿import { NextResponse } from "next/server";
+import { parseJsonRequest } from "@/lib/security/parse-json";
+import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -12,7 +13,13 @@ export async function POST(request: Request, { params }: Context) {
   if (!session?.user?.id) return NextResponse.json({ error: "Please sign in" }, { status: 401 });
   const { bookId } = await params;
   let body: unknown;
-  try { body = await request.json(); } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
+  try {
+    const result = await parseJsonRequest(request);
+    if (!result.ok) return result.response;
+    body = result.body;
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
   const parsed = reviewSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Rating must be 1–5; review up to 2000 characters" }, { status: 400 });
   const book = await prisma.book.findFirst({ where: { id: bookId, active: true }, select: { id: true } });

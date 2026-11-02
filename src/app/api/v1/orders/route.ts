@@ -1,3 +1,5 @@
+import { checkRateLimit } from "@/lib/security/rate-limit";
+import { parseJsonRequest } from "@/lib/security/parse-json";
 import { createHash } from "node:crypto";
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
@@ -51,12 +53,35 @@ export async function POST(request: Request) {
     return failure("Please sign in before placing an order.", 401);
   }
 
+  try {
+    const limit = await checkRateLimit({
+      scope: "checkout",
+      identifier: userId,
+      limit: 10,
+      windowSeconds: 900,
+    });
+
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: "Too many checkout attempts. Please try again later." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(limit.retryAfterSeconds) },
+        },
+      );
+    }
+  } catch (error) {
+    console.error("Checkout rate limiter unavailable:", error);
+    return failure("Checkout temporarily unavailable.", 503);
+  }
   let body: unknown;
 
   try {
-    body = await request.json();
+    const result = await parseJsonRequest(request);
+    if (!result.ok) return result.response;
+    body = result.body;
   } catch {
-    return failure("Invalid JSON request.", 400);
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   const parsed = orderSchema.safeParse(body);
