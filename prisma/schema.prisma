@@ -33,7 +33,8 @@ model User {
   name         String?
   email        String   @unique
   passwordHash String?
-  role         UserRole @default(CUSTOMER)
+  role           UserRole @default(CUSTOMER)
+  sessionVersion Int      @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -138,9 +139,13 @@ model Address {
 
 model Order {
   id              String        @id @default(cuid())
+  idempotencyKey  String?       @unique
+  requestHash     String?
   userId          String
   status          OrderStatus   @default(PENDING)
   paymentStatus   PaymentStatus @default(PENDING)
+  paidAt          DateTime?
+  paidByAdminId   String?
   subtotalPaise   Int
   shippingPaise   Int           @default(0)
   totalPaise      Int
@@ -213,4 +218,13 @@ model WishlistItem {
   book Book @relation(fields: [bookId], references: [id])
 
   @@unique([userId, bookId])
+}
+
+model RateLimitBucket {
+  key         String   @id
+  count       Int
+  windowStart DateTime
+  expiresAt   DateTime
+
+  @@index([expiresAt])
 }
